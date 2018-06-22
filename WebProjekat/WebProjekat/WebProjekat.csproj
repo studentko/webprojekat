@@ -167,6 +167,8 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AuthenticationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\RideController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -175,10 +177,17 @@
     <Compile Include="Models\AppDbContext.cs" />
     <Compile Include="Models\Car.cs" />
     <Compile Include="Models\Comment.cs" />
+    <Compile Include="Models\DTO\CreateRideDTO.cs" />
+    <Compile Include="Models\DTO\DriverCreateDTO.cs" />
+    <Compile Include="Models\DTO\GetRidesFilterDTO.cs" />
     <Compile Include="Models\DTO\LoginInfoDTO.cs" />
     <Compile Include="Models\DTO\LoginReturnDTO.cs" />
     <Compile Include="Models\DTO\RegisterReturnDTO.cs" />
     <Compile Include="Models\DTO\RegisterUserDTO.cs" />
+    <Compile Include="Models\DTO\RideChangeDTO.cs" />
+    <Compile Include="Models\DTO\RideChangeReturnDTO.cs" />
+    <Compile Include="Models\DTO\RideDeleteReturnDTO.cs" />
+    <Compile Include="Models\DTO\RideReturnDTO.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Ride.cs" />
     <Compile Include="Models\UserModels\Customer.cs" />
