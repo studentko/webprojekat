@@ -22,7 +22,7 @@ namespace WebProjekat.Models
         public string JMBG { get; set; }
         public string PhoneNumber { get; set; }
         public Role Role { get; set; }
-
+        public bool Blocked { get; set; }
     }
 
     public enum Gender

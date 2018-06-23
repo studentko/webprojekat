@@ -37,6 +37,7 @@ namespace WebProjekat.Models.DTO
         NoSort = 0,
         ByDate,
         ByRate,
+        ByDistance
     }
     
 }

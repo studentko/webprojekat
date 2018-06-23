@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Device.Location;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -98,6 +99,14 @@ namespace WebProjekat.Controllers
             } else if (filter.SortFilter == RideFilterSort.ByRate)
             {
                 rides = rides.OrderByDescending(r => r.Comment == null ? int.MaxValue : r.Comment.Rating);
+            } else if (filter.SortFilter == RideFilterSort.ByDistance && UserPrincipal.IsDriver)
+            {
+                Driver driver = uow.UserRepository.GetByID(UserPrincipal.CurrentUser.Id) as Driver;
+                if (driver.Location != null)
+                {
+                    GeoCoordinate cord = new GeoCoordinate(driver.Location.X, driver.Location.Y);
+                    rides = rides.OrderBy(r => new GeoCoordinate(r.StartLocation.X, r.StartLocation.Y).GetDistanceTo(cord));
+                }
             }
 
             return rides;
@@ -143,6 +152,7 @@ namespace WebProjekat.Controllers
             else if (UserPrincipal.IsCustomer)
             {
                 ride.Status = RideStatus.Created;
+                ride.CustomerId = UserPrincipal.CurrentUser.Id;
                 ride.Customer = uow.UserRepository.GetByID(UserPrincipal.CurrentUser.Id) as Customer;
 
             }
@@ -281,6 +291,70 @@ namespace WebProjekat.Controllers
                 Message = $"Ride is updated"
             };
         }
+        
+        
+        [Route("api/ride/{id}/comment")]
+        public RideChangeReturnDTO Put(int id, [FromBody] Comment comment)
+        {
+            if (!UserPrincipal.IsCustomer)
+            {
+                throw new HttpResponseException(HttpStatusCode.Unauthorized);
+            }
+
+            Ride ride = uow.RideRepository.GetByID(id);
+            if (ride == null)
+            {
+                return new RideChangeReturnDTO()
+                {
+                    IsSuccess = false,
+                    Message = $"Ride with doesn't exist with id: {id}"
+                };
+            }
+
+            if (ride.CustomerId != UserPrincipal.CurrentUser.Id)
+            {
+                return new RideChangeReturnDTO()
+                {
+                    IsSuccess = false,
+                    Message = $"Ride with id: {id} doesn't belong to the user"
+                };
+            }
+
+            if (ride.Status != RideStatus.Successful)
+            {
+                return new RideChangeReturnDTO()
+                {
+                    IsSuccess = false,
+                    Message = $"Ride with id: {id} isn't yet completed"
+                };
+            }
+
+            if (ride.Comment != null)
+            {
+                return new RideChangeReturnDTO()
+                {
+                    IsSuccess = false,
+                    Message = $"Ride is already commented"
+                };
+            }
+
+            Comment pushComment = new Comment()
+            {
+                CustomerId = UserPrincipal.CurrentUser.Id,
+                Date = DateTime.Now,
+                Description = comment.Description,
+                Rating = comment.Rating,
+                RideId = ride.Id
+            };
+
+            uow.CommentRepository.Insert(pushComment);
+
+            return new RideChangeReturnDTO()
+            {
+                IsSuccess = true
+            };
+        }
+        
         //za otkazivanje ili vozac prosledjuje neuspesnu voznju
         [HttpDelete]
         public RideDeleteReturnDTO Delete(int id, [FromBody] String reason)
@@ -324,7 +398,7 @@ namespace WebProjekat.Controllers
                 {
                     ride.Status = RideStatus.Canceled;
                     comment.CustomerId = UserPrincipal.CurrentUser.Id;
-                    comment.Ride = ride;
+                    comment.RideId = ride.Id;
                 }
                 else
                 {
@@ -341,7 +415,7 @@ namespace WebProjekat.Controllers
                 {
                     ride.Status = RideStatus.Unsuccessful;
                     comment.CustomerId = (int)ride.CustomerId;
-                    comment.Ride = ride;
+                    comment.RideId = ride.Id;
                 }
                 else
                 {

@@ -105,12 +105,28 @@ namespace WebProjekat.Controllers
             };
         }
 
-        // PUT: api/User/5
-        public void Put(int id, [FromBody]string value)
+        [Route("api/user/put/{id}/block")]
+        public void Put(int id, [FromBody] bool block)
         {
+            if (!UserPrincipal.IsDispatcher)
+            {
+                throw new HttpResponseException(HttpStatusCode.Unauthorized);
+            }
 
+            User user = uow.UserRepository.GetByID(id);
+            if (user == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+            if (user.Role == Role.Dispatcher)
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+
+            user.Blocked = block;
+            uow.UserRepository.Update(user);
         }
-
 
         // za apdejt licnih podataka
         public void Put([FromBody]RegisterUserDTO personalData)
