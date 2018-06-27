@@ -15,3 +15,10 @@ select,
 textarea {
     max-width: 280px;
 }
+
+label {
+    margin-top: 20px;
+}
+.ol-overlaycontainer-stopevent {
+    display:none !important; 
+}

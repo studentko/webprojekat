@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
+    <script src="https://openlayers.org/en/v4.6.5/build/ol.js" type="text/javascript"></script>
+
+    <title>Web Projekat</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
-<body>
+<body ng-app="mainApp" ng-controller="appController">
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -16,26 +18,35 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+
+                <a class="navbar-brand" href="#!/">Home</a>
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li ng-if="isDispatcher"><a href="#!/createRide">Create Ride</a></li>
+                    <li ng-if="isDispatcher"><a href="#!/createDriver">Add New Driver</a></li>
+                    <li ng-if="isDispatcher"><a href="#!/users">Users</a></li>
+                    <li ng-if="!isLoggedIn"><a href="#!/login">Login</a></li>
+                    <li ng-if="isLoggedIn"><a href="#!/profile">Profile</a></li>
+                    <li ng-if="isDriver"><a href="#!/driverHistory">History</a></li>
+                    <li ng-if="isDriver"><a href="#!/driverLocation">Location</a></li>
+                    <li ng-if="isLoggedIn"><a ng-click="logout()">Logout</a></li>
+                    <li ng-if="!isLoggedIn"><a href="#!/register">Register</a></li>
                 </ul>
             </div>
         </div>
     </div>
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
+
     </div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/angular")
+
     @RenderSection("scripts", required: false)
+    @Scripts.Render("~/bundles/app")
 </body>
 </html>

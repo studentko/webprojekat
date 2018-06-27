@@ -17,7 +17,7 @@ namespace WebProjekat.Models
         public int Amount { get; set; }
         public CarType CarType { get; set; }
         public RideStatus Status { get; set; }
-        public Comment Comment { get; set; }
+        public virtual Comment Comment { get; set; }
 
         [ForeignKey("CustomerId")]
         public virtual Customer Customer { get; set; }

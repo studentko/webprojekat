@@ -1,0 +1,31 @@
+<div align="center">
+    <h2>Driver Information</h2>
+    <label> Username </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.username" />
+    <label> Password </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.password" />
+    <label> First Name </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.firstName" />
+    <label> Last Name </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.lastName" />
+    <label> Email </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.email" />
+    <label> JMBG </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.JMBG" />
+    <label> Phone Number </label>
+    <input type="text" class="form-control" ng-model="driver.driverInfo.phoneNumber" />
+    <hr />
+    <h2>Car Information</h2>
+    <label> Model year </label>
+    <input type="text" class="form-control" ng-model="driver.CarModelYear" />
+    <label> Registration Number </label>
+    <input type="text" class="form-control" ng-model="driver.CarRegistrationNumber" />
+    <label> Car Type</label>
+    <select class="form-control" ng-model="driver.carType">
+        <option value="0">Car</option>
+        <option value="1">Van</option>
+    </select>
+    <br>
+    <button type="submit" class="btn btn-default" ng-click="create(driver)"> Create </button>
+</div>
+

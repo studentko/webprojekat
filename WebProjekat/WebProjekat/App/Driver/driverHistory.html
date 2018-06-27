@@ -1,0 +1,137 @@
+<div align="center">
+    <hr>
+    <label>Date Information</label>
+    <div>
+        <label> From </label>
+        <input type="date" class="form-control" placeholder="search" ng-model="search.fromOrderDate" style="display: inline-flex; margin-right: 10px;"
+        />
+        <label> To </label>
+        <input type="date" class="form-control" placeholder="search" ng-model="search.toOrderDate" style="display: inline-flex; margin-right: 10px;"
+        />
+    </div>
+    <hr>
+    <label>Rate Information</label>
+    <div>
+        <label> From </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.fromRate" style="display: inline-flex; margin-right: 10px;"
+        />
+        <label> To </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.toRate" style="display: inline-flex; margin-right: 10px;"
+        />
+    </div>
+    <hr>
+    <label>Price Information</label>
+    <div>
+        <label> From </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.fromPrice" style="display: inline-flex; margin-right: 10px;"
+        />
+        <label> To </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.toPrice" style="display: inline-flex; margin-right: 10px;"
+        />
+    </div>
+    <label> Assigned drives / In create </label>
+    <input type="checkbox" placeholder="search" ng-model="search.onlyAssigned" style="display: inline-flex; margin-right: 10px;"
+    />
+    <button type="submit" class="btn btn-default" ng-click="refreshList()"> Search</button>
+    <button type="submit" class="btn btn-default" ng-click="reset()"> Reset</button>
+
+    <hr>
+    <label> Filter by status </label>
+    <select class="form-control" ng-model="search.statusFilter" style="display: inline-flex; margin-right: 20px;" ng-change="refreshList()">
+        <option value="">None</option>
+        <option value="0">Created</option>
+        <option value="1">Formed</option>
+        <option value="2">Processed</option>
+        <option value="3">Accepted</option>
+        <option value="4">Canceled</option>
+        <option value="5">Successful</option>
+        <option value="6">Unsuccessful</option>
+    </select>
+    <label> Sort by </label>
+    <select class="form-control" ng-model="search.sortFilter" style="display: inline-flex; margin-right: 20px;" ng-change="refreshList()">
+        <option value="0">None</option>
+        <option value="1">Date</option>
+        <option value="2">Rate</option>
+        <option value="3">Distance</option>
+    </select>
+    <hr>
+    <h2>History</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>Date</td>
+                <td>Start Location</td>
+                <td>Destination</td>
+				<td>Amount</td>
+                <td>Status</td>
+                <td>Car Type</td>
+                <td>Comment</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="ride in history">
+                <td>{{ride.date | date:'short'}}</td>
+                <td>{{ride.startLocation.streetName}} {{ride.startLocation.streetNumber}}</td>
+                <td>{{ride.destination.streetName}} {{ride.destination.streetNumber}}</td>
+				<td>{{ride.amount}}</td>
+                <td>{{ride.status | rideStatus}}</td>
+                <td>{{ride.carType | carType}}</td>
+                <td ng-show="ride.comment"><button  class="btn btn-default form-control" data-toggle="modal" data-target="#seeCommentDialog" ng-click="setComment(ride.comment)">See Comment</button></td>
+                <td ng-hide="ride.status < 1 || ride.status > 3">
+                    <button class="btn btn-default form-control" ng-click="setForUpdate(ride)" data-toggle="modal" data-target="#updateRideDialog">Update</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="updateRideDialog" class="modal" role="document">
+    <div class="modal-dialog" align="center">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" align="center">
+                <form>
+                    <label> Status </label>
+                    <select class="form-control" ng-model="updateRide.status">
+                        <option value="5">Successful</option>
+                        <option value="6">Unsuccessful</option>
+                    </select>
+                    <hr>
+                    <div ng-if="updateRide.status == 5">
+                        <label> Street Name </label>
+                        <input type="text" class="form-control" ng-model="updateRide.destination.streetName" />
+                        <label> Street Number </label>
+                        <input type="number" class="form-control" ng-model="updateRide.destination.streetNumber" />
+                        <label> Amount </label>
+                        <input type="text" class="form-control" ng-model="updateRide.amount" />
+                        <hr>
+                    </div>
+                    <div ng-if="updateRide.status == 6">
+                        <label> Comment </label>
+                        <textarea class="form-control" ng-model="updateRide.comment.description" style="max-width: 500px;"></textarea>
+                        <hr>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-default" ng-click="update(updateRide)">Update</button>
+                    <button type="button" class="btn btn-primary btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="seeCommentDialog" class="modal" role="document">
+    <div class="modal-dialog" align="center">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" align="center">
+                <p>Date: {{checkoutComment.date  | date:'short'}}</p>
+                <p>User : {{checkoutComment.customer.username}}  </p>
+                <p>Rating: {{checkoutComment.rating}}</p>
+                <p>Comment: {{checkoutComment.description}}</p>
+                    <hr>
+                    <button type="button" class="btn btn-primary btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+﻿<div align="center">
+    <form name="updateForm">
+        <label> Password </label>
+        <input type="text" class="form-control" required ng-model="user.password" />
+        <label> First Name </label>
+        <input type="text" class="form-control" required ng-model="user.firstName" />
+        <label> Last Name </label>
+        <input type="text" class="form-control" required ng-model="user.lastName" />
+        <label> Email </label>
+        <input type="text" class="form-control" required ng-model="user.email" />
+        <label> JMBG </label>
+        <input type="text" class="form-control" required ng-model="user.jmbg" />
+        <label> Phone Number </label>
+        <input type="text" class="form-control" required ng-model="user.phoneNumber" />
+        <br />
+        <button type="submit" class="btn btn-default" ng-click="save(user)"> Save </button>
+    </form>
+</div>

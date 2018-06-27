@@ -2,7 +2,10 @@
 {
     public class Location
     {
+        // latitude
         public double X { get; set; }
+
+        // longitude
         public double Y { get; set; }
         public string StreetName { get; set; }
         public int StreetNumber { get; set; }

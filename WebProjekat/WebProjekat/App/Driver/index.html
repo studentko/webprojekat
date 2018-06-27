@@ -1,0 +1,85 @@
+﻿<div align="center">
+    <h2>Current Ride</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>Date</td>
+                <td>Start Location</td>
+                <td>Destination</td>
+                <td>Status</td>
+                <td>Car Type</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{current.date | date:'short'}}</td>
+                <td>{{current.startLocation.streetName}} {{current.startLocation.streetNumber}}</td>
+                <td>{{current.destination.streetName}} {{current.destination.streetNumber}}</td>
+                <td>{{current.status | rideStatus}}</td>
+                <td>{{current.carType | carType}}</td>
+				<td>
+                    <button class="btn btn-default form-control" ng-click="setForUpdate(current)" data-toggle="modal" data-target="#updateRideDialog">Update</td>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <h2>Active Requests</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>Date</td>
+                <td>Start Location</td>
+                <td>Destination</td>
+                <td>Status</td>
+                <td>Car Type</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="ride in activeRides">
+                <td>{{ride.date | date:'short'}}</td>
+                <td>{{ride.startLocation.streetName}} {{ride.startLocation.streetNumber}}</td>
+                <td>{{ride.destination.streetName}} {{ride.destination.streetNumber}}</td>
+                <td>{{ride.status | rideStatus}}</td>
+                <td>{{ride.carType | carType}}</td>
+                <td><button class="btn btn-primary form-control" ng-click="accept(ride)"> Accept </button></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+</div>
+
+
+<div id="updateRideDialog" class="modal" role="document">
+    <div class="modal-dialog" align="center">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" align="center">
+                <form>
+                    <label> Status </label>
+                    <select class="form-control" ng-model="updateRide.status">
+                        <option value="5">Successful</option>
+                        <option value="6">Unsuccessful</option>
+                    </select>
+                    <hr>
+                    <div ng-if="updateRide.status == 5">
+                        <label> Street Name </label>
+                        <input type="text" class="form-control" ng-model="updateRide.destination.streetName" />
+                        <label> Street Number </label>
+                        <input type="number" class="form-control" ng-model="updateRide.destination.streetNumber" />
+                        <label> Amount </label>
+                        <input type="text" class="form-control" ng-model="updateRide.amount" />
+                        <hr>
+                    </div>
+                    <div ng-if="updateRide.status == 6">
+                        <label> Comment </label>
+                        <textarea class="form-control" ng-model="updateRide.comment.description" style="max-width: 500px;"></textarea>
+                        <hr>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-default" ng-click="update(updateRide)">Update</button>
+                    <button type="button" class="btn btn-primary btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

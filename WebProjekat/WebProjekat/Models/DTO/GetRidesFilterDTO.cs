@@ -21,10 +21,7 @@ namespace WebProjekat.Models.DTO
         public int? ToPrice { get; set; }
 
         public RideFilterSort SortFilter { get; set; }
-    }
 
-    public class GetDispatcherRidesFilterDTO : GetRidesFilterDTO
-    {
         public string CustomerName { get; set; }
         public string CustomerLastName { get; set; }
 

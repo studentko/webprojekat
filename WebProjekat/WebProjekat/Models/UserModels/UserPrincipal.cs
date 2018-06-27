@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
+using WebProjekat.Repositories;
+using WebProjekat.Repositories.UnitOfWork;
 
 namespace WebProjekat.Models.UserModels
 {
@@ -11,6 +13,17 @@ namespace WebProjekat.Models.UserModels
     {
         public User User { get; set; }
         bool authenticated = false;
+
+        //UnitOfWork uow = new UnitOfWork();
+
+        public bool Blocked
+        {
+            get
+            {
+                GenericUserRepository ur = new GenericUserRepository();
+                return ur.GetByID(User.Id).Blocked;
+            }
+        }
 
         public IIdentity Identity
         {
@@ -40,7 +53,7 @@ namespace WebProjekat.Models.UserModels
         {
             get
             {
-                return authenticated;
+                return authenticated && !Blocked;
             }
         }
 

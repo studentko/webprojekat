@@ -13,12 +13,14 @@ namespace WebProjekat.Controllers
 {
     public class UserController : ApiController
     {
+
         UnitOfWork uow = new UnitOfWork();
 
 
         public UserController()
         {
         }
+
 
         public IEnumerable<User> Get()
         {
@@ -38,6 +40,7 @@ namespace WebProjekat.Controllers
         // GET: api/User/5
         public User Get(int id)
         {
+            /*
             if (UserPrincipal.IsCustomer || UserPrincipal.IsDriver)
             {
                 return UserPrincipal.CurrentPrincipal.User;
@@ -45,7 +48,8 @@ namespace WebProjekat.Controllers
             else if (UserPrincipal.IsDispatcher)
             {
                 return uow.UserRepository.GetByID(id);
-            }
+            }*/
+            return UserPrincipal.CurrentPrincipal.User;
 
             throw new HttpResponseException(HttpStatusCode.Unauthorized);
         }
@@ -64,6 +68,15 @@ namespace WebProjekat.Controllers
                 {
                     IsSuccess = false,
                     Message = $"Registration failed: User with username '{driverInfo.DriverInfo.Username}' allready exist"
+                };
+            }
+
+            if (driverInfo.CheckInput().Length != 0)
+            {
+                return new RegisterReturnDTO()
+                {
+                    IsSuccess = false,
+                    Message = $"Registration failed: Providen data isn't valid\n{driverInfo.CheckInput()}"
                 };
             }
 
@@ -105,8 +118,14 @@ namespace WebProjekat.Controllers
             };
         }
 
-        [Route("api/user/put/{id}/block")]
-        public void Put(int id, [FromBody] bool block)
+        // PUT: api/User/5
+        public void Put(int id, [FromBody]string value)
+        {
+
+        }
+
+        [Route("api/user/put/{id}/{block}")]
+        public void Put(int id, bool block)
         {
             if (!UserPrincipal.IsDispatcher)
             {

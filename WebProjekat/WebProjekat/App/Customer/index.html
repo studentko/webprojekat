@@ -1,0 +1,184 @@
+﻿<div align="center">
+    <div id="map" class="map"></div>
+    <br>
+    <label> Street Name </label>
+    <input type="text" class="form-control" ng-model="ride.startLocation.streetName" disabled/>
+    <label> Street Number </label>
+    <input type="number" class="form-control" ng-model="ride.startLocation.streetNumber" disabled/>
+    <label> Car Type (optional) </label>
+    <select class="form-control" ng-model="ride.carType">
+        <option value="0">Car</option>
+        <option value="1">Van</option>
+    </select>
+    <br>
+    <button ng-hide="forUpdate" type="submit" class="btn btn-default" ng-click="requestRide(ride)"> Send </button>
+    <button ng-hide="!forUpdate" type="submit" class="btn btn-default" ng-click="update(ride)"> Update </button>
+    <hr>
+    <div id="requestedRide">
+        <h2>Requested Ride</h2>
+        <hr>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>Date</td>
+                    <td>Start Location</td>
+                    <td>Destination</td>
+                    <td>Status</td>
+                    <td>Car Type</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{currentRide.date | date:'short'}}</td>
+                    <td>{{currentRide.startLocation.streetName}} {{currentRide.startLocation.streetNumber}}</td>
+                    <td>{{currentRide.destination.streetName}} {{currentRide.destination.streetNumber}}</td>
+                    <td>{{currentRide.status | rideStatus}}</td>
+                    <td>{{currentRide.carType | carType}}</td>
+                    <td>
+                        <button class="btn btn-warning form-control" data-toggle="modal" data-target="#cancelRideDialog">Cancel</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <h2>History</h2>
+    <hr>
+    <hr>
+    <label>Date Information</label>
+    <div>
+        <label> From </label>
+        <input type="date" class="form-control" placeholder="search" ng-model="search.fromOrderDate" style="display: inline-flex; margin-right: 10px;"
+        />
+        <label> To </label>
+        <input type="date" class="form-control" placeholder="search" ng-model="search.toOrderDate" style="display: inline-flex; margin-right: 10px;"
+        />
+    </div>
+    <hr>
+    <label>Rate Information</label>
+    <div>
+        <label> From </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.fromRate" style="display: inline-flex; margin-right: 10px;"
+        />
+        <label> To </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.toRate" style="display: inline-flex; margin-right: 10px;"
+        />
+    </div>
+    <hr>
+    <label>Price Information</label>
+    <div>
+        <label> From </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.fromPrice" style="display: inline-flex; margin-right: 10px;"
+        />
+        <label> To </label>
+        <input type="number" class="form-control" placeholder="search" ng-model="search.toPrice" style="display: inline-flex; margin-right: 10px;"
+        />
+    </div>
+    
+    <button type="submit" class="btn btn-default" ng-click="refreshList()"> Search</button>
+    <button type="submit" class="btn btn-default" ng-click="reset()"> Reset</button>
+
+    <hr>
+    <label> Filter by status </label>
+    <select class="form-control" ng-model="search.statusFilter" style="display: inline-flex; margin-right: 20px;" ng-change="refreshList()">
+        <option value="">None</option>
+        <option value="0">Created</option>
+        <option value="1">Formed</option>
+        <option value="2">Processed</option>
+        <option value="3">Accepted</option>
+        <option value="4">Canceled</option>
+        <option value="5">Successful</option>
+        <option value="6">Unsuccessful</option>
+    </select>
+    <label> Sort by </label>
+    <select class="form-control" ng-model="search.sortFilter" style="display: inline-flex; margin-right: 20px;" ng-change="refreshList()">
+        <option value="0">None</option>
+        <option value="1">Date</option>
+        <option value="2">Rate</option>
+    </select>
+    <hr>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>Date</td>
+                <td>Start Location</td>
+                <td>Destination</td>
+				<td>Amount</td>
+                <td>Status</td>
+                <td>Car Type</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="ride in history">
+                <td>{{ride.date | date:'short'}}</td>
+                <td>{{ride.startLocation.streetName}} {{ride.startLocation.streetNumber}}</td>
+                <td>{{ride.destination.streetName}} {{ride.destination.streetNumber}}</td>
+				<td>{{ride.amount}}</td>
+                <td>{{ride.status | rideStatus}}</td>
+                <td>{{ride.carType | carType}}</td>
+                <td ng-show="ride.comment"><button class="btn btn-default form-control" data-toggle="modal" data-target="#seeCommentDialog" ng-click="setComment(ride.comment)">See Comment</button></td>
+                <td ng-show="!ride.comment"><button class="btn btn-default form-control" data-toggle="modal" data-target="#rateRideDialog" ng-click="setForComment(ride)">Comment</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div id="cancelRideDialog" class="modal" role="document">
+    <div class="modal-dialog" align="center">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" align="center">
+                <form name="addProgramForm">
+                    <label> Reason for canceling </label>
+                    <textarea class="form-control" ng-model="reason" style="max-width: 500px;"></textarea>
+                    <hr>
+                    <button type="submit" class="btn btn-primary btn-default" ng-click="cancel(reason)">Cancel Ride</button>
+                    <button type="button" class="btn btn-primary btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="rateRideDialog" class="modal" role="document">
+    <div class="modal-dialog" align="center">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" align="center">
+                <form name="addProgramForm">
+                    <label> Comment </label>
+                    <textarea class="form-control" ng-model="comment.description" style="max-width: 500px;"></textarea>
+                    <label> Rate this ride </label>
+                    <select class="form-control" ng-model="comment.rating">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                    <hr>
+                    <button type="submit" class="btn btn-primary btn-default" ng-click="commentRide(comment)"> Add Comment </button>
+                    <button type="button" class="btn btn-primary btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="seeCommentDialog" class="modal" role="document">
+    <div class="modal-dialog" align="center">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" align="center">
+                    <p>Date: {{checkoutComment.date  | date:'short'}}</p>
+                    <p>User : {{checkoutComment.customer.username}}  </p>
+                    <p>Rating: {{checkoutComment.rating}}</p>
+                    <p>Comment: {{checkoutComment.description}}</p>
+                    <hr>
+                    <button type="button" class="btn btn-primary btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,7 @@ namespace WebProjekat.Controllers
         UnitOfWork uow = new UnitOfWork();
 
         // vraca 5 najblizih slobodnih vozaca u odnosu na lokaciju
-        public IEnumerable<Driver> Get([FromUri] Location location)
+        public IEnumerable<Driver> Post([FromBody] Location location)
         {
             if (!UserPrincipal.IsDispatcher)
             {
@@ -33,7 +33,7 @@ namespace WebProjekat.Controllers
                 if (usr.Role == Role.Driver)
                 {
                     Driver drv = usr as Driver;
-                    if (drv.Location != null)
+                    if (drv.Location != null && drv.IsFree())
                     {
                         GeoCoordinate c2 = new GeoCoordinate(drv.Location.X, drv.Location.Y);
                         choosen.Add(new Tuple<double, Driver>(c2.GetDistanceTo(c1), drv));
@@ -41,7 +41,7 @@ namespace WebProjekat.Controllers
                 }
             }
 
-            choosen.Sort((u, v) => u.Item1.CompareTo(v.Item2));
+            choosen.Sort((u, v) => u.Item1.CompareTo(v.Item1));
 
             List<Driver> firstFive = new List<Driver>();
 
@@ -63,6 +63,12 @@ namespace WebProjekat.Controllers
             Driver driver = uow.UserRepository.GetByID(UserPrincipal.CurrentUser.Id) as Driver;
             driver.Location = location;
             uow.UserRepository.Update(driver);
+        }
+
+        [Route("api/driver/getAllFree")]
+        public IEnumerable<User> GetAllFree([FromUri] Location location)
+        {
+            return uow.UserRepository.Get(x => x.Role == Role.Driver);
         }
     }
 }

@@ -19,5 +19,19 @@ namespace WebProjekat.Models
         {
             this.Role = Role.Driver;
         }
+
+        public bool IsFree()
+        {
+            foreach (var ride in Rides) {
+                switch (ride.Status)
+                {
+                    case RideStatus.Accepted:
+                    case RideStatus.Formed:
+                    case RideStatus.Processed:
+                        return false;
+                }
+            }
+            return true;
+        }
     }
 }

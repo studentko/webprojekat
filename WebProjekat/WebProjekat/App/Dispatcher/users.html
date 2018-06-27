@@ -1,0 +1,29 @@
+<div>
+    <h2> Users </h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+				<td>Username</td>
+                <td>First Name</td>
+                <td>Last Name</td>
+                <td>Gender</td>
+                <td>Email</td>
+                <td>Phone Number</td>
+                <td>Role</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="user in users">
+				<td>{{user.username}}
+                <td>{{user.firstName}}</td>
+                <td>{{user.lastName}}</td>
+                <td>{{user.gender | gender}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.phoneNumber}}</td>
+                <td>{{user.role | role}}</td>
+                <td><button ng-if="user.blocked" class="btn btn-success" ng-click="changeBlockStatus(user.id, false)">Unblock</button>
+                    <button ng-if="!user.blocked" class="btn btn-danger" ng-click="changeBlockStatus(user.id, true)">Block</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -31,7 +31,17 @@ namespace WebProjekat.Controllers
 
             User user = uow.UserRepository.GetByUsername(loginInfo.Username);
 
-            if (user != null && user.Password.Equals(loginInfo.Password))
+            if (user == null)
+            {
+                lrd.IsSuccess = false;
+                lrd.Message = "Username and/or password are incorect";
+            }
+            else if (user.Blocked)
+            {
+                lrd.IsSuccess = false;
+                lrd.Message = "Account is blocked by administrator";
+            }
+            else if (user.Password.Equals(loginInfo.Password))
             {
                 lrd.IsSuccess = true;
                 lrd.User = user;
@@ -40,11 +50,6 @@ namespace WebProjekat.Controllers
 
                 UserPrincipal principal = new UserPrincipal(user, true);
                 SetPrincipal(principal);
-            }
-            else
-            {
-                lrd.IsSuccess = false;
-                lrd.Message = "Username and/or password are incorect";
             }
 
             return lrd;
@@ -68,6 +73,15 @@ namespace WebProjekat.Controllers
                     Role = Role.Customer,
                     Username = regUser.Username
                 };
+
+                if (regUser.CheckInput().Length != 0)
+                {
+                    return new RegisterReturnDTO()
+                    {
+                        IsSuccess = false,
+                        Message = $"Registration data isn't valid:\n{regUser.CheckInput()}"
+                    };
+                }
 
                 if (uow.UserRepository.GetByUsername(regUser.Username) != null)
                 {
@@ -99,7 +113,7 @@ namespace WebProjekat.Controllers
             return true;
         }
 
-        [Route("api/authentication/isLoged")]
+        [Route("api/authentication/isLogged")]
         [HttpGet]
         public bool IsLoged()
         {

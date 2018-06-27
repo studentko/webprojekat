@@ -7,10 +7,21 @@ namespace WebProjekat.Models.DTO
 {
     public class RideChangeDTO
     {
+        public Location Location { get; set; }
+        public CarType? CarType { get; set; }
 
+        public int AssignDriverId { get; set; }
+
+        public RideStatus NewStatus { get; set; }
+
+
+        // potrabno ako je status kompletiran
+        public Location DestinationLocation { get; set; }
+
+        public int Amount { get; set; }
     }
 
-    public class CustomerRideChangeDTO : RideChangeDTO
+    /*public class CustomerRideChangeDTO : RideChangeDTO
     {
         public Location Location { get; set; }
         public CarType? CarType { get; set; }
@@ -30,5 +41,5 @@ namespace WebProjekat.Models.DTO
         public Location DestinationLocation { get; set; }
 
         public int Amount { get; set; }
-    }
+    }*/
 }

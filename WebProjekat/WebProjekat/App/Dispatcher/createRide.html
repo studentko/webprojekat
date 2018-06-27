@@ -1,0 +1,22 @@
+<div align="center">
+    <label> Location </label>
+    <br>
+    <div id="map" class="map"></div>
+    <br>
+    <label> Street Name </label>
+    <input type="text" class="form-control" ng-model="ride.location.streetName" disabled/>
+    <label> Street Number </label>
+    <input type="number" class="form-control" ng-model="ride.location.streetNumber" disabled/>
+    <label> Car Type (optional) </label>
+    <select class="form-control" ng-model="ride.carType">
+        <option value="0">Car</option>
+        <option value="1">Van</option>
+    </select>
+    <label> Driver </label>
+    <select class="form-control" ng-model="ride.driverId">
+        <option ng-repeat="drvr in closestFive" value="{{drvr.id}}">{{drvr.firstName}} {{drvr.lastName}} - {{drvr.car.carType}}</option>
+    </select>
+
+    <br>
+    <button type="submit" class="btn btn-default" ng-click="requestRide(ride)"> Start </button>
+</div>

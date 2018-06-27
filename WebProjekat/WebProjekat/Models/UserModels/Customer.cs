@@ -12,5 +12,15 @@ namespace WebProjekat.Models
         {
             this.Role = Role.Customer;
         }
+
+        public bool IsFree()
+        {
+            foreach (var r in Rides)
+            {
+                if (r.Status == RideStatus.Processed || r.Status == RideStatus.Accepted)
+                    return false;
+            }
+            return true;
+        }
     }
 }

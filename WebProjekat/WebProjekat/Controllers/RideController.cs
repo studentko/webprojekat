@@ -67,35 +67,38 @@ namespace WebProjekat.Controllers
             int toPrice = filter.ToPrice == null ? int.MaxValue : (int)filter.ToPrice;
 
             rides = rides.Where(r => (r.Date >= fromDate && r.Date <= toDate) &&
-                               ((r.Comment != null && r.Comment.Rating >= fromRate && r.Comment.Rating <= toRate) 
-                                                || r.Comment == null) &&
                                (r.Amount >= fromPrice && r.Amount <= toPrice));
 
-            GetDispatcherRidesFilterDTO drf = filter as GetDispatcherRidesFilterDTO;
+            if (filter.FromRate != null || filter.ToRate != null)
+            {
+                rides = rides.Where(r => (r.Comment != null && r.Comment.Rating >= fromRate && r.Comment.Rating <= toRate));
+            }
+
+            GetRidesFilterDTO drf = filter;
             if (UserPrincipal.IsDispatcher && drf != null)
             {
                 if (drf.CustomerName != null)
                 {
-                    rides = rides.Where(r => r.Customer != null && r.Customer.FirstName.Equals(drf.CustomerName));
+                    rides = rides.Where(r => r.Customer != null && r.Customer.FirstName != null && r.Customer.FirstName.Equals(drf.CustomerName));
                 }
                 if (drf.CustomerLastName != null)
                 {
-                    rides = rides.Where(r => r.Customer != null && r.Customer.LastName.Equals(drf.CustomerLastName));
+                    rides = rides.Where(r => r.Customer != null && r.Customer.LastName != null && r.Customer.LastName.Equals(drf.CustomerLastName));
                 }
 
                 if (drf.DriverName != null)
                 {
-                    rides = rides.Where(r => r.Driver != null && r.Driver.FirstName.Equals(drf.DriverName));
+                    rides = rides.Where(r => r.Driver != null && r.Driver.FirstName != null && r.Driver.FirstName.Equals(drf.DriverName));
                 }
                 if (drf.DriverLastName != null)
                 {
-                    rides = rides.Where(r => r.Driver != null && r.Driver.LastName.Equals(drf.DriverLastName));
+                    rides = rides.Where(r => r.Driver != null && r.Driver.LastName != null && r.Driver.LastName.Equals(drf.DriverLastName));
                 }
             }
 
             if (filter.SortFilter == RideFilterSort.ByDate)
             {
-                rides = rides.OrderByDescending(r => r.Date);
+                rides = rides.OrderByDescending(r => r.Date.Ticks);
             } else if (filter.SortFilter == RideFilterSort.ByRate)
             {
                 rides = rides.OrderByDescending(r => r.Comment == null ? int.MaxValue : r.Comment.Rating);
@@ -129,7 +132,14 @@ namespace WebProjekat.Controllers
             };
 
             
-            
+            if (rideInfo.Location.X == 0 && rideInfo.Location.Y == 0)
+            {
+                return new RideReturnDTO()
+                {
+                    IsSuccess = false,
+                    Message = $"Please select location from map"
+                };
+            }
 
             if (UserPrincipal.IsDispatcher)
             {
@@ -142,6 +152,16 @@ namespace WebProjekat.Controllers
                         Message = $"No driver with {rideInfo.DriverId}"
                     };
                 }
+
+                if (!driver.IsFree())
+                {
+                    return new RideReturnDTO()
+                    {
+                        IsSuccess = false,
+                        Message = $"Driver is not free to accept new ride"
+                    };
+                }
+
                 ride.DriverId = driver.Id;
                 ride.Driver = driver;
 
@@ -151,6 +171,15 @@ namespace WebProjekat.Controllers
             }
             else if (UserPrincipal.IsCustomer)
             {
+                if(!(uow.UserRepository.GetByID(UserPrincipal.CurrentUser.Id) as Customer).IsFree())
+                {
+                    return new RideReturnDTO()
+                    {
+                        IsSuccess = false,
+                        Message = $"Cannot start new ride before current is finished or canceled"
+                    };
+                }
+
                 ride.Status = RideStatus.Created;
                 ride.CustomerId = UserPrincipal.CurrentUser.Id;
                 ride.Customer = uow.UserRepository.GetByID(UserPrincipal.CurrentUser.Id) as Customer;
@@ -187,7 +216,7 @@ namespace WebProjekat.Controllers
 
             if (UserPrincipal.IsCustomer)
             {
-                CustomerRideChangeDTO crc = rideChange as CustomerRideChangeDTO;
+                RideChangeDTO crc = rideChange /*as CustomerRideChangeDTO*/;
                 
                 if (ride.CustomerId != UserPrincipal.CurrentUser.Id)
                 {
@@ -219,9 +248,18 @@ namespace WebProjekat.Controllers
             }
             else if (UserPrincipal.IsDriver)
             {
-                DriverRideChangeDTO drc = rideChange as DriverRideChangeDTO;
+                RideChangeDTO drc = rideChange /*as DriverRideChangeDTO*/;
                 if (ride.Status == RideStatus.Created && drc.NewStatus == RideStatus.Accepted)
                 {
+                    if (!(uow.UserRepository.GetByID(UserPrincipal.CurrentUser.Id) as Driver).IsFree())
+                    {
+                        return new RideChangeReturnDTO()
+                        {
+                            IsSuccess = false,
+                            Message = $"You have ride in progress and can't accept new one"
+                        };
+                    }
+
                     ride.Status = RideStatus.Accepted;
                     ride.DriverId = UserPrincipal.CurrentUser.Id;
 
@@ -258,7 +296,7 @@ namespace WebProjekat.Controllers
             }
             else if(UserPrincipal.IsDispatcher)
             {
-                DispatcherRideChangeDTO drc = rideChange as DispatcherRideChangeDTO;
+                RideChangeDTO drc = rideChange /*as DispatcherRideChangeDTO*/;
                 Driver driver = uow.UserRepository.GetByID(drc.AssignDriverId) as Driver;
                 if (driver == null)
                 {
@@ -344,10 +382,14 @@ namespace WebProjekat.Controllers
                 Date = DateTime.Now,
                 Description = comment.Description,
                 Rating = comment.Rating,
-                RideId = ride.Id
+                RideId = ride.Id,
+                Ride = ride
             };
 
-            uow.CommentRepository.Insert(pushComment);
+            pushComment = uow.CommentRepository.Insert(pushComment);
+
+            ride.Comment = pushComment;
+            uow.RideRepository.Update(ride);
 
             return new RideChangeReturnDTO()
             {
@@ -357,7 +399,8 @@ namespace WebProjekat.Controllers
         
         //za otkazivanje ili vozac prosledjuje neuspesnu voznju
         [HttpDelete]
-        public RideDeleteReturnDTO Delete(int id, [FromBody] String reason)
+        [Route("api/ride/{id}/{reason}")]
+        public RideDeleteReturnDTO Delete(int id, String reason)
         {
             if (!(UserPrincipal.IsCustomer || UserPrincipal.IsDriver))
             {
@@ -399,6 +442,7 @@ namespace WebProjekat.Controllers
                     ride.Status = RideStatus.Canceled;
                     comment.CustomerId = UserPrincipal.CurrentUser.Id;
                     comment.RideId = ride.Id;
+                    comment.Ride = ride;
                 }
                 else
                 {
@@ -414,8 +458,15 @@ namespace WebProjekat.Controllers
                 if (ride.DriverId == UserPrincipal.CurrentUser.Id)
                 {
                     ride.Status = RideStatus.Unsuccessful;
-                    comment.CustomerId = (int)ride.CustomerId;
+                    if (ride.CustomerId != null)
+                    {
+                        comment.CustomerId = (int)ride.CustomerId;
+                    } else
+                    {
+                        comment.CustomerId = UserPrincipal.CurrentUser.Id;
+                    }
                     comment.RideId = ride.Id;
+                    comment.Ride = ride;
                 }
                 else
                 {
